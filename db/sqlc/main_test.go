@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"github.com/anhuet/simplebank/util"
 	"log"
 	"os"
 	"testing"
@@ -18,8 +19,12 @@ var testQueries *Queries
 var testDB *sql.DB
 
 func TestMain(m *testing.M) {
-	var err error
-	testDB, err = sql.Open(dbDriver, dbSource)
+	config, err := util.LoadConfigFile("../..")
+	if err != nil {
+		log.Fatal("cannot load config:", err)
+	}
+
+	testDB, err = sql.Open(config.DBdriver, config.DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}

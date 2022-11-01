@@ -4,24 +4,23 @@ import (
 	"database/sql"
 	"github.com/anhuet/simplebank/api"
 	db "github.com/anhuet/simplebank/db/sqlc"
+	"github.com/anhuet/simplebank/util"
 	_ "github.com/lib/pq" // <------------ here
 	"log"
 )
 
-const (
-	dbDriver      = "postgres"
-	dbSource      = "postgresql://andy:secret@localhost:5433/simple_bank?sslmode=disable"
-	serverAddress = "0.0.0.0:8080"
-)
-
 func main() {
-	conn, err := sql.Open(dbDriver, dbSource)
+	config, err := util.LoadConfigFile(".")
+	if err != nil {
+		log.Fatal("Can not load a config", err)
+	}
+	conn, err := sql.Open(config.DBdriver, config.DBSource)
 	if err != nil {
 		log.Fatal("Can not connect to db", err)
 	}
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
-	err = server.Start(serverAddress)
+	err = server.Start(config.ServerAdress)
 	if err != nil {
 		log.Fatal("cannot start server:", err)
 	}
