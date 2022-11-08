@@ -19,7 +19,7 @@ var (
 
 func NewJwtMaker(secretKey string) (Maker, error) {
 	if len(secretKey) < minSecretKeySize {
-		return nil, ErrExpiredToken
+		return nil, ErrInvalidToken
 	}
 	return &JWTMaker{secretKey}, nil
 }
