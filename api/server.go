@@ -2,18 +2,28 @@ package api
 
 import (
 	db "github.com/anhuet/simplebank/db/sqlc"
+	"github.com/anhuet/simplebank/token"
+	"github.com/anhuet/simplebank/util"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"log"
 )
 
 type Server struct {
 	store  *db.Store
 	router *gin.Engine
+	token  token.Maker
 }
 
 func NewServer(store *db.Store) *Server {
-	server := &Server{store: store}
+	config, err := util.LoadConfigFile(".")
+	if err != nil {
+		log.Fatal("Can not load a config", err)
+	}
+	tokenMaker, err := token.NewJwtMaker(config.TokenSecretKey)
+
+	server := &Server{store: store, token: tokenMaker}
 	router := gin.Default()
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("currency", validCurrency)
