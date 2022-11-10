@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"fmt"
 	db "github.com/anhuet/simplebank/db/sqlc"
 	"github.com/anhuet/simplebank/util"
 	"github.com/gin-gonic/gin"
@@ -52,6 +53,7 @@ type createUserResponse struct {
 }
 
 func (server *Server) createUser(ctx *gin.Context) {
+	fmt.Println("call create User")
 	var req createUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

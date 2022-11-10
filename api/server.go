@@ -23,7 +23,7 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 	if err != nil {
 		log.Fatal("Can not load a config", err)
 	}
-	tokenSecret, err := token.NewJwtMaker(config.TokenSecretKey)
+	tokenSecret, err := token.NewJWTMaker(config.TokenSecretKey)
 
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
@@ -43,12 +43,15 @@ func (server *Server) Start(adress string) error {
 func (server *Server) setupRouter() {
 	router := gin.Default()
 
-	router.POST("/account", server.createAccount)
-	router.GET("/account", server.ListAccounts)
-	router.GET("/account/:id", server.GetAccount)
-	router.POST("/transfers", server.createTransfer)
 	router.POST("/users", server.createUser)
 	router.POST("/login", server.loginUser)
+
+	authRoutes := router.Group("/").Use(authMiddleware(server.token))
+
+	authRoutes.POST("/account", server.createAccount)
+	authRoutes.GET("/account", server.ListAccounts)
+	authRoutes.GET("/account/:id", server.GetAccount)
+	authRoutes.POST("/transfers", server.createTransfer)
 
 	server.router = router
 
